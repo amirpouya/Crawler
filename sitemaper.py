@@ -1,4 +1,5 @@
 import httplib2
+import io
 from BeautifulSoup import BeautifulSoup, SoupStrainer
 import seen
 link="http://uae.souq.com/ae-en/shop-all-categories/c/"
@@ -25,13 +26,13 @@ for listpage in listlinks:
         for link in links:
             l=link['href']
             pos=l.find('/i/')
-            if pos != -1:
+            if pos != -1 and l.find('ae-en')!=-1:
                 itemlist.append( l[0:pos+3])
         print counter,len(itemlist)
         counter+=1
-    except:
-        pass
+    except :
+        print "Error",listpage
 uniq=seen.f7(itemlist)
-out=open('link.list','w')
+out=io.open('link.list','w',encoding='utf-8')
 out.write('\n'.join(uniq))
 
