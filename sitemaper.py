@@ -15,6 +15,7 @@ for link in links:
         listlinks.append( l[0:pos+3])
 print "Number of Categor:",len(listlinks)
 counter=1
+itemlist=[]
 for listpage in listlinks:
     try:
         status, response = http.request(listpage)
@@ -25,12 +26,12 @@ for listpage in listlinks:
             l=link['href']
             pos=l.find('/i/')
             if pos != -1:
-                listlinks.append( l[0:pos+3])
-        print counter,len(listlinks)
+                itemlist.append( l[0:pos+3])
+        print counter,len(itemlist)
         counter+=1
     except:
         pass
-uniq=seen.f7(listlinks)
+uniq=seen.f7(itemlist)
 out=open('link.list','w')
 out.write('\n'.join(uniq))
 
