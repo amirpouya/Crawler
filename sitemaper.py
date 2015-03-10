@@ -1,9 +1,10 @@
 import httplib2
 import io
 from BeautifulSoup import BeautifulSoup, SoupStrainer
-import seen
-link="http://uae.souq.com/ae-en/shop-all-categories/c/"
+import unique
 
+
+link="http://uae.souq.com/ae-en/shop-all-categories/c/"
 http = httplib2.Http()
 status, response = http.request(link)
 soup=BeautifulSoup(response)
@@ -32,7 +33,7 @@ for listpage in listlinks:
         counter+=1
     except :
         print "Error",listpage
-uniq=seen.f7(itemlist)
+uniqlist=unique.unique(itemlist)
 out=io.open('link.list','w',encoding='utf-8')
-out.write('\n'.join(uniq))
+out.write('\n'.join(uniqlist))
 

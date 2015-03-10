@@ -1,39 +1,28 @@
-"""
-Downloads all links from a specified location and saves to machine.
-Downloaded links will only be of a lower level then links specified.
-To use: python downloader.py http://uae.souq.com/ae-en/
-
-"""
-import sys,re,urllib2,urllib,urlparse,io
+import urllib2 # For extracting site pages
 from BeautifulSoup import BeautifulSoup          # For processing HTML
-import os
-import io
+import os #For Creating Dir
+import io #For opening file in UTF8
 
 
 
 def main():
-    counter=0
     list_file=open("final.list.txt",'r')
     links=list_file.readlines()
     counter=0;
+    all_file_count=len(links)
     for link in links:
-        #print link,link2 ##print downloaded link
-        file_name="ae_en\\"+str(counter)+".html"
         try:
             link2=link.replace('ae-en','ae-ar')
             print link,link2
-            #urllib.urlretrieve(link, file_name)##download the link
             org_page=urllib2.urlopen(link)
             trg_page=urllib2.urlopen(link2)
             org_html=org_page.read()
             org_html=org_html.replace('item_tab_contents_wrapper ','')
             trg_html=trg_page.read()
             trg_html=trg_html.replace('item_tab_contents_wrapper ','')
-            #targ_file=open(file_name,'w')
             outdir="output"
             counter=text_extract(trg_html,link2,org_html,link,outdir,counter)
-            #targ_file.write(str(targ_html))
-            #targ_file.close()
+            print counter,'/',all_file_count
         except   :
             print "could not download %s"%link
 
@@ -42,7 +31,6 @@ def text_extract(trg_html,trg_link,org_html,org_link,outdir,counter):
 
     trg_out=unicode('<doc url="'+trg_link.strip()+'">')
     org_out=unicode('<doc url="'+org_link.strip()+'">')
-
 
 
     trg_soup = BeautifulSoup(''.join(trg_html),convertEntities=BeautifulSoup.HTML_ENTITIES)
@@ -63,7 +51,7 @@ def text_extract(trg_html,trg_link,org_html,org_link,outdir,counter):
     org_out+=unicode("<title>"+org_title[0].text+"</title>")
 
 
-    #Exetracting Diffrent type of Desc
+    #Exetracting Different type of Desc
     trg_desc=trg_soup.findAll('div',{'class':'itemDescription'})
     org_desc=org_soup.findAll('div',{'class':'itemDescription'})
 
@@ -93,23 +81,25 @@ def text_extract(trg_html,trg_link,org_html,org_link,outdir,counter):
     trg_out+=unicode("</doc>")
     org_out+=unicode("</doc>")
     counter+=1;
-
+    en_path=os.path.join(outdir,'en')
+    ar_path=os.path.join(outdir,'ar')
     if not os.path.exists(outdir):
         os.makedirs(outdir)
-    if not os.path.exists(outdir+"\\en"):
-        os.makedirs(outdir+"\\en")
-    if not os.path.exists(outdir+"\\ar"):
-        os.makedirs(outdir+'\\ar')
+    if not os.path.exists(en_path):
+        os.makedirs(en_path)
+    if not os.path.exists(ar_path):
+        os.makedirs(ar_path)
 
-    org_file=io.open(outdir+"\\en\\"+str(counter)+".en",'w',encoding='utf-8')
-    trg_file=io.open(outdir+"\\ar\\"+str(counter)+".ar",'w',encoding='utf-8')
-
+    org_path=os.path.join(en_path,str(counter)+".en")
+    trg_path=os.path.join(ar_path,str(counter)+".ar")
+    org_file=io.open(org_path,'w',encoding='utf-8')
+    trg_file=io.open(trg_path,'w',encoding='utf-8')
+    print org_path
     org_file.write(org_out)
     trg_file.write(trg_out)
     org_file.close()
     trg_file.close()
 
-    print "--------------------------"
     return counter
 
 
