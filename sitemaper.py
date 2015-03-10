@@ -4,18 +4,26 @@ from BeautifulSoup import BeautifulSoup, SoupStrainer
 import unique
 
 
-link="http://uae.souq.com/ae-en/shop-all-categories/c/"
+start_links=["http://uae.souq.com/ae-en/shop-all-categories/c/","http://uae.souq.com/ae-en/"]
+
 http = httplib2.Http()
-status, response = http.request(link)
-soup=BeautifulSoup(response)
-links =soup.findAll('a')
 listlinks=[]
-for link in links:
-    l=link['href']
-    pos=l.find('/l/')
-    if pos != -1:
-        listlinks.append( l[0:pos+3])
-print "Number of Categor:",len(listlinks)
+for main_link in start_links:
+    status, response = http.request(main_link)
+    soup=BeautifulSoup(response)
+    links =soup.findAll('a')
+
+    for link in links:
+        l=link['href']
+        pos=l.find('/c/')
+        if pos != -1:
+            listlinks.append( l[0:pos+3])
+    for link in links:
+        l=link['href']
+        pos=l.find('/l/')
+        if pos != -1:
+            listlinks.append( l[0:pos+3])
+print "Number of Category:",len(listlinks)
 counter=1
 itemlist=[]
 for listpage in listlinks:

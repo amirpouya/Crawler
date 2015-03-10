@@ -1,15 +1,44 @@
+#usage: python extractor.py -i<listfile> -o<outdir>
+# or
+# python extractor.py
+
+
+
 import urllib2 # For extracting site pages
 from BeautifulSoup import BeautifulSoup          # For processing HTML
 import os #For Creating Dir
 import io #For opening file in UTF8
+import sys,getopt
 
 
+def main(argv):
+    list_address='final.list.txt'
+    output_dir='output'
 
-def main():
-    list_file=open("final.list.txt",'r')
+    try:
+      opts, args = getopt.getopt(argv,"hi:o:",["ifile=","odir="])
+    except getopt.GetoptError:
+      print 'test.py -i <listfile> -o <outputdir>'
+      sys.exit(2)
+    for opt, arg in opts:
+      if opt == '-h':
+         print 'extractor.py -i <inputfile> -o <outputdir>'
+         sys.exit()
+      elif opt in ("-i", "--ifile"):
+         list_address = arg
+      elif opt in ("-o", "--odir"):
+         output_dir = arg
+
+    try:
+        list_file=open(list_address,'r')
+    except :
+        print 'No such file or directory:',list_address
+        exit(-1)
+    print 'Reading Link List'
     links=list_file.readlines()
-    counter=0;
+    counter=1;
     all_file_count=len(links)
+    print "Start Downloading Pages..."
     for link in links:
         try:
             link2=link.replace('ae-en','ae-ar')
@@ -20,14 +49,14 @@ def main():
             org_html=org_html.replace('item_tab_contents_wrapper ','')
             trg_html=trg_page.read()
             trg_html=trg_html.replace('item_tab_contents_wrapper ','')
-            outdir="output"
+            outdir=output_dir
             counter=text_extract(trg_html,link2,org_html,link,outdir,counter)
             print counter,'/',all_file_count
         except   :
             print "could not download %s"%link
 
 
-def text_extract(trg_html,trg_link,org_html,org_link,outdir,counter):
+def text_extract(trg_html,trg_link,org_html,org_link,out_dir,counter):
 
     trg_out=unicode('<doc url="'+trg_link.strip()+'">')
     org_out=unicode('<doc url="'+org_link.strip()+'">')
@@ -47,8 +76,8 @@ def text_extract(trg_html,trg_link,org_html,org_link,outdir,counter):
     #Extracting and Generating XML docs
 
     #Title Part
-    trg_out+=unicode("<title>"+trg_title[0].text+"</title>")
-    org_out+=unicode("<title>"+org_title[0].text+"</title>")
+    trg_out+=unicode("<title>"+trg_title[0].text.strip()+"</title>")
+    org_out+=unicode("<title>"+org_title[0].text.strip()+"</title>")
 
 
     #Exetracting Different type of Desc
@@ -70,21 +99,24 @@ def text_extract(trg_html,trg_link,org_html,org_link,outdir,counter):
     trg_part['item-desc']=trg_desc
     org_part['item-desc']=org_desc
 
+    trg_desc=trg_soup.findAll('div',{'class':'product_text'})
+    org_desc=org_soup.findAll('div',{'class':'product_text'})
+    trg_part['product_text']=trg_desc
+    org_part['product_text']=org_desc
     print trg_title[0].text
     for item in trg_part.keys():
         if len(trg_part[item])>0:
-            trg_out+=unicode('<desc type="'+item+'">'+trg_part[item][0].text+"</desc>")
+            trg_out+=unicode('<desc type="'+item+'">'+trg_part[item][0].text.replace('ENDHERE','\n').replace('ENDSTART','\n').replace('END','\n')+"</desc>")
     print org_title[0].text
     for item in org_part.keys():
         if len(org_part[item])>0:
-            org_out+=unicode('<desc type="'+item+'">'+org_part[item][0].text+"</desc>")
+            org_out+=unicode('<desc type="'+item+'">'+org_part[item][0].text.replace('ENDHERE','\n').replace('ENDSTART','\n').replace('END','\n')+"</desc>")
     trg_out+=unicode("</doc>")
     org_out+=unicode("</doc>")
-    counter+=1;
-    en_path=os.path.join(outdir,'en')
-    ar_path=os.path.join(outdir,'ar')
-    if not os.path.exists(outdir):
-        os.makedirs(outdir)
+    en_path=os.path.join(out_dir,'en')
+    ar_path=os.path.join(out_dir,'ar')
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
     if not os.path.exists(en_path):
         os.makedirs(en_path)
     if not os.path.exists(ar_path):
@@ -94,16 +126,17 @@ def text_extract(trg_html,trg_link,org_html,org_link,outdir,counter):
     trg_path=os.path.join(ar_path,str(counter)+".ar")
     org_file=io.open(org_path,'w',encoding='utf-8')
     trg_file=io.open(trg_path,'w',encoding='utf-8')
-    print org_path
+    org_out=unicode(BeautifulSoup(org_out).prettify())
     org_file.write(org_out)
     trg_file.write(trg_out)
     org_file.close()
     trg_file.close()
 
+    counter+=1
     return counter
 
 
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

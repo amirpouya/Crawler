@@ -16,7 +16,7 @@ def main():
     list_file=open("final.list.txt",'r')
     links=list_file.readlines()
     counter=0;
-    link='http://uae.souq.com/ae-en/1000-words-and-pictures-by-terry-burton-2006-terry-burton-7285998/i/'
+    link='http://uae.souq.com/ae-en/babyliss-2735e-beliss-brushing-467538/i/'
     #print link,link2 ##print downloaded link
     file_name="ae_en\\"+str(counter)+".html"
     try:
@@ -29,7 +29,7 @@ def main():
         text_extract(org_html,outdir)
         #targ_file.write(str(targ_html))
         #targ_file.close()
-    except   :
+    except  KeyError :
         print "could not download %s"%link
 
 
@@ -42,7 +42,7 @@ def text_extract(org_html,outdir):
 
     org_desc=org_soup.findAll('div',{'class':'itemDescription'})
     org_part['itemDescription']=org_desc
-    org_desc=org_soup.findAll('div',{'class':'item-desc'})[0].text
+    org_desc=org_soup.findAll('div',{'class':'product_text'})[0].text.replace('ENDHERE','\n')
     print org_desc
 
     org_part['Description']=org_desc
