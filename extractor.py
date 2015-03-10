@@ -3,7 +3,6 @@
 # python extractor.py
 
 
-
 import urllib2 # For extracting site pages
 from BeautifulSoup import BeautifulSoup          # For processing HTML
 import os #For Creating Dir
@@ -45,9 +44,10 @@ def main(argv):
             print link,link2
             org_page=urllib2.urlopen(link)
             trg_page=urllib2.urlopen(link2)
-            org_html=org_page.read()
+
+            org_html=org_page.read().decode('utf-8','ignore')
             org_html=org_html.replace('item_tab_contents_wrapper ','')
-            trg_html=trg_page.read()
+            trg_html=trg_page.read().decode('utf-8','ignore')
             trg_html=trg_html.replace('item_tab_contents_wrapper ','')
             outdir=output_dir
             counter=text_extract(trg_html,link2,org_html,link,outdir,counter)
@@ -76,8 +76,8 @@ def text_extract(trg_html,trg_link,org_html,org_link,out_dir,counter):
     #Extracting and Generating XML docs
 
     #Title Part
-    trg_out+=unicode("<title>"+trg_title[0].text.strip()+"</title>")
-    org_out+=unicode("<title>"+org_title[0].text.strip()+"</title>")
+    trg_out+=unicode("\n<title>"+trg_title[0].text.strip()+"</title>\n")
+    org_out+=unicode("\n<title>"+org_title[0].text.strip()+"</title>\n")
 
 
     #Exetracting Different type of Desc
@@ -106,11 +106,11 @@ def text_extract(trg_html,trg_link,org_html,org_link,out_dir,counter):
     print trg_title[0].text
     for item in trg_part.keys():
         if len(trg_part[item])>0:
-            trg_out+=unicode('<desc type="'+item+'">'+trg_part[item][0].text.replace('ENDHERE','\n').replace('ENDSTART','\n').replace('END','\n')+"</desc>")
+            trg_out+=unicode('<desc type="'+item+'">\n'+trg_part[item][0].text.replace('ENDHERE','\n').replace('ENDSTART','\n').replace('END','\n')+"</desc>\n")
     print org_title[0].text
     for item in org_part.keys():
         if len(org_part[item])>0:
-            org_out+=unicode('<desc type="'+item+'">'+org_part[item][0].text.replace('ENDHERE','\n').replace('ENDSTART','\n').replace('END','\n')+"</desc>")
+            org_out+=unicode('<desc type="'+item+'">\n'+org_part[item][0].text.replace('ENDHERE','\n').replace('ENDSTART','\n').replace('END','\n')+"</desc>\n")
     trg_out+=unicode("</doc>")
     org_out+=unicode("</doc>")
     en_path=os.path.join(out_dir,'en')
@@ -126,7 +126,10 @@ def text_extract(trg_html,trg_link,org_html,org_link,out_dir,counter):
     trg_path=os.path.join(ar_path,str(counter)+".ar")
     org_file=io.open(org_path,'w',encoding='utf-8')
     trg_file=io.open(trg_path,'w',encoding='utf-8')
-    org_out=unicode(BeautifulSoup(org_out).prettify())
+    #org_out=BeautifulSoup(org_out)
+    #trg_out=BeautifulSoup(trg_out)
+    #org_out=unicode(org_out.prettify(),errors='replace')
+    #trg_out=unicode(trg_out.prettify(),errors='replace')
     org_file.write(org_out)
     trg_file.write(trg_out)
     org_file.close()
