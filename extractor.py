@@ -39,7 +39,7 @@ def main(argv):
         exit(-1)
     print 'Reading Link List'
     links=list_file.readlines()
-    counter=1;
+    counter=0;
     all_file_count=len(links)
     print "Start Downloading Pages..."
     for link in links:
@@ -57,7 +57,7 @@ def main(argv):
             outdir=output_dir
             counter=text_extract(trg_html,link2,org_html,link,outdir,counter)
             print fcounter,'/',all_file_count,":",counter
-        except   :
+        except  :
             print "could not download %s"%link
 
 
@@ -88,29 +88,51 @@ def text_extract(trg_html,trg_link,org_html,org_link,out_dir,counter):
     #Exetracting Different type of Desc
     trg_desc=trg_soup.findAll('div',{'class':'itemDescription'})
     org_desc=org_soup.findAll('div',{'class':'itemDescription'})
+    try:
+        if isArabic(trg_desc[0].text):
+            trg_part['itemDescription']=trg_desc
+            org_part['itemDescription']=org_desc
+            ok=True
+    except:
+        pass
 
-    trg_part['itemDescription']=trg_desc
-    org_part['itemDescription']=org_desc
 
     trg_desc=trg_soup.findAll('li',{'id':'Description'})
     org_desc=org_soup.findAll('li',{'id':'Description'})
 
-    if isArabic(trg_desc):
-        trg_part['Description']=trg_desc
-        org_part['Description']=org_desc
+    try:
+        if isArabic(trg_desc[0].text):
+            trg_part['Description']=trg_desc
+            org_part['Description']=org_desc
+            ok=True
+    except:
+        pass
 
     trg_desc=trg_soup.findAll('div',{'class':'item-desc'})
     org_desc=org_soup.findAll('div',{'class':'item-desc'})
 
-    if isArabic(trg_desc):
-        trg_part['item-desc']=trg_desc
-        org_part['item-desc']=org_desc
+    try:
+        if isArabic(trg_desc[0].text):
+            trg_part['item-desc']=trg_desc
+            org_part['item-desc']=org_desc
+            ok=True
+    except:
+        pass
 
+
+    #This part is adding to much noise, uncomment it with your own responsibility
+    '''
     trg_desc=trg_soup.findAll('div',{'class':'product_text'})
     org_desc=org_soup.findAll('div',{'class':'product_text'})
-    if isArabic(trg_desc):
-        trg_part['product_text']=trg_desc
-        org_part['product_text']=org_desc
+    try:
+        if isArabic(trg_desc[0].text):
+            trg_part['product_text']=trg_desc
+            org_part['product_text']=org_desc
+            ok=True
+    except:
+        pass
+   '''
+
     if ok:
         print trg_title[0].text
         for item in trg_part.keys():
@@ -145,10 +167,11 @@ def text_extract(trg_html,trg_link,org_html,org_link,out_dir,counter):
 
 
 def isArabic(seq):
-    aset=['ا','ب','ت','ث','ي','ي','ن','م','ل','ك','ق','ف','غ','ع','ظ','س']
+    aset=[u'ا',u'ب',u'ت',u'ث',u'ي',u'ي',u'ن',u'م',u'ل',u'ك',u'ق',u'ف',u'غ',u'ع',u'ظ',u'س']
     """ Check whether sequence seq contains ANY of the items in aset. """
     for c in seq:
-        if c in aset: return True
+        if unicode(c) in aset:
+            return True
     return False
 
 
