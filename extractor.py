@@ -132,6 +132,8 @@ def text_extract(trg_html,trg_link,org_html,org_link,out_dir,counter):
     except:
         pass
    '''
+    if isArabic(trg_title[0].text):
+        ok=True
 
     if ok:
         print trg_title[0].text
