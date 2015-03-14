@@ -58,7 +58,7 @@ def main(argv):
     counter = 0;
     all_file_count = len(links)
     print "Start Downloading Pages..."
-    for link in links[69:]:
+    for link in links:
         fcounter += 1
         try:
             link2 = link.replace('ae-en', 'ae-ar')
@@ -79,9 +79,9 @@ def main(argv):
 
 def text_extract(trg_html, trg_link, org_html, org_link, out_dir, counter):
     ok = False
-    trg_out = unicode('<doc url="' + trg_link.strip() + '">')
-    org_out = unicode('<doc url="' + org_link.strip() + '">')
-    multi_out=unicode('<doc en_url="'+org_link.strip()+'" '+ 'ar_url="' + trg_link.strip() + '">')
+    trg_out = unicode('<doc url="' + trg_link.decode('utf-8').strip() + '">')
+    org_out = unicode('<doc url="' + org_link.decode('utf-8').strip() + '">')
+    multi_out=unicode('<doc en_url="'+org_link.decode('utf-8').strip()+'" '+ 'ar_url="' + trg_link.decode('utf-8').strip() + '">')
 
     trg_soup = BeautifulSoup(''.join(trg_html), convertEntities=BeautifulSoup.HTML_ENTITIES)
     org_soup = BeautifulSoup(''.join(org_html), convertEntities=BeautifulSoup.HTML_ENTITIES)
