@@ -58,7 +58,7 @@ def main(argv):
     counter = 0;
     all_file_count = len(links)
     print "Start Downloading Pages..."
-    for link in links:
+    for link in links[69:]:
         fcounter += 1
         try:
             link2 = link.replace('ae-en', 'ae-ar')
@@ -73,7 +73,7 @@ def main(argv):
             outdir = output_dir
             counter = text_extract(trg_html, link2, org_html, link, outdir, counter)
             print fcounter, '/', all_file_count, ":", counter
-        except  IOError:
+        except  :
             print "could not download %s" % link
 
 
